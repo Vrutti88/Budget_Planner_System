@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Budget Planning System</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+
+    <!-- AUTH -->
+
+    <div class="auth-container" id="authContainer">
+
+        <div class="auth-box">
+
+            <h1 id="authTitle">Login</h1>
+
+            <input type="text" id="username" placeholder="Username" style="display:none;">
+
+            <input type="email" id="email" placeholder="Email">
+
+            <input type="password" id="password" placeholder="Password">
+
+            <button onclick="submitAuth()" id="authButton">
+
+                Login
+
+            </button>
+
+            <div class="auth-toggle" onclick="toggleAuth()" id="toggleText">
+
+                Don't have account? Register
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- APP -->
+
+    <div class="app" id="app">
+
+        <!-- SIDEBAR -->
+
+        <div class="sidebar">
+
+            <h2>💰 Budget Planner</h2>
+
+            <ul>
+
+                <li onclick="showPage('dashboard')">
+                    Dashboard
+                </li>
+
+                <li onclick="showPage('budgetPage')">
+                    Budgets
+                </li>
+
+                <li onclick="showPage('expensePage')">
+                    Expenses
+                </li>
+
+                <li onclick="showPage('alertPage')">
+                    Alerts
+                </li>
+
+                <li onclick="logout()">
+                    Logout
+                </li>
+
+            </ul>
+
+        </div>
+
+        <!-- MAIN -->
+
+        <div class="main">
+
+            <!-- DASHBOARD -->
+
+            <div id="dashboard" class="page active">
+
+                <h1>Financial Dashboard</h1>
+
+                <!-- CARDS -->
+
+                <div class="top-cards">
+
+                    <div class="card">
+
+                        <h3>Total Budget</h3>
+
+                        <p id="totalBudget">₹0</p>
+
+                    </div>
+
+                    <div class="card">
+
+                        <h3>Total Spent</h3>
+
+                        <p id="totalSpent">₹0</p>
+
+                    </div>
+
+                    <div class="card">
+
+                        <h3>Remaining</h3>
+
+                        <p id="remaining">₹0</p>
+
+                    </div>
+
+                </div>
+
+                <!-- CATEGORY ANALYTICS -->
+
+                <h2 class="section-title">
+                    Category Analytics
+                </h2>
+
+                <div id="progressContainer"></div>
+
+                <!-- RECENT EXPENSES -->
+
+                <!-- <h2 class="section-title">
+                Recent Expenses
+            </h2>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+
+                            <th>Description</th>
+
+                            <th>Amount</th>
+
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="expenseTable"></tbody>
+
+                </table>
+
+            </div> -->
+
+            </div>
+
+            <!-- BUDGET PAGE -->
+
+            <div id="budgetPage" class="page">
+
+                <h1>Create Budget</h1>
+
+                <div class="form-box">
+
+                    <select id="budget_category_id">
+
+                        <option value="">
+                            Select Category
+                        </option>
+
+                    </select>
+
+                    <input type="number" id="b_amount" placeholder="Budget Amount">
+
+                    <input type="date" id="start_date">
+
+                    <input type="date" id="end_date">
+
+                    <button onclick="createBudget()">
+
+                        Create Budget
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- EXPENSE PAGE -->
+
+            <div id="expensePage" class="page">
+
+                <h1>Add Expense</h1>
+
+                <div class="form-box">
+
+                    <select id="category_id">
+
+                        <option value="">
+                            Select Category
+                        </option>
+
+                    </select>
+
+                    <input type="number" id="amount" placeholder="Expense Amount">
+
+                    <input type="text" id="description" placeholder="Description">
+
+                    <input type="date" id="expense_date">
+
+                    <button onclick="addExpense()">
+
+                        Add Expense
+
+                    </button>
+
+                </div>
+
+                <div class="result-box">
+
+                    <h3>Tracking Result</h3>
+
+                    <div id="expenseResult"></div>
+
+                </div>
+
+                <!-- EXPENSE HISTORY -->
+
+                <h2 class="section-title">
+
+                    Expense History
+
+                </h2>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Category</th>
+                                <th>Date</th>
+
+                                <th>Description</th>
+
+                                <th>Amount</th>
+
+                                <th>Actions</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="expenseTable"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- ALERT PAGE -->
+
+            <div id="alertPage" class="page">
+
+                <h1>Alerts</h1>
+
+                <button onclick="loadAlerts()">
+
+                    Load Alerts
+
+                </button>
+
+                <div id="alertsContainer"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        let isLogin = true;
+
+        /* TOGGLE */
+
+        function toggleAuth() {
+
+            isLogin = !isLogin;
+
+            if (isLogin) {
+
+                document.getElementById(
+                    'authTitle'
+                ).innerText = "Login";
+
+                document.getElementById(
+                    'authButton'
+                ).innerText = "Login";
+
+                document.getElementById(
+                    'toggleText'
+                ).innerText =
+                    "Don't have account? Register";
+
+                document.getElementById(
+                    'username'
+                ).style.display = "none";
+            }
+
+            else {
+
+                document.getElementById(
+                    'authTitle'
+                ).innerText = "Register";
+
+                document.getElementById(
+                    'authButton'
+                ).innerText = "Register";
+
+                document.getElementById(
+                    'toggleText'
+                ).innerText =
+                    "Already have account? Login";
+
+                document.getElementById(
+                    'username'
+                ).style.display = "block";
+            }
+        }
+
+        /* LOGIN REGISTER */
+
+        function submitAuth() {
+
+            if (isLogin) {
+
+                fetch('/api/v1/auth/login', {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        email:
+                            document.getElementById(
+                                'email'
+                            ).value,
+
+                        password:
+                            document.getElementById(
+                                'password'
+                            ).value
+                    })
+                })
+
+                    .then(res => res.json())
+
+                    .then(data => {
+
+                        if (data.status === "success") {
+
+                            localStorage.setItem(
+                                "user_id",
+                                data.user_id
+                            );
+
+                            startApp();
+                        }
+
+                        else {
+                            alert("Invalid Credentials");
+                        }
+                    });
+            }
+
+            else {
+
+                fetch('/api/v1/auth/register', {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        username:
+                            document.getElementById(
+                                'username'
+                            ).value,
+
+                        email:
+                            document.getElementById(
+                                'email'
+                            ).value,
+
+                        password:
+                            document.getElementById(
+                                'password'
+                            ).value
+                    })
+                })
+
+                    .then(res => res.json())
+
+                    .then(data => {
+
+                        alert(
+                            "Registration Successful"
+                        );
+
+                        toggleAuth();
+                    });
+            }
+        }
+
+        /* START APP */
+
+        function startApp() {
+
+            document.getElementById(
+                'authContainer'
+            ).style.display = "none";
+
+            document.getElementById(
+                'app'
+            ).style.display = "block";
+
+            loadDashboard();
+
+            fetch(`/api/v1/categories/default/${localStorage.getItem("user_id")}`)
+    .then(res => res.json())
+    .then(data => {
+        loadCategories();
+    });
+
+            loadAlerts();
+
+            loadExpenses();
+
+            loadCategoryAnalytics();
+        }
+
+        /* LOGOUT */
+
+        function logout() {
+
+            localStorage.removeItem(
+                "user_id"
+            );
+
+            location.reload();
+        }
+
+        /* PAGE SWITCH */
+
+        function showPage(pageId) {
+
+            let pages =
+                document.querySelectorAll('.page');
+
+            pages.forEach(page => {
+
+                page.classList.remove('active');
+            });
+
+            document.getElementById(
+                pageId
+            ).classList.add('active');
+        }
+
+        /* DASHBOARD */
+
+        function loadDashboard() {
+
+            fetch('/api/v1/analytics/dashboard')
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    document.getElementById(
+                        'totalBudget'
+                    ).innerText =
+                        '₹' + data.total_budget;
+
+                    document.getElementById(
+                        'totalSpent'
+                    ).innerText =
+                        '₹' + data.total_spent;
+
+                    document.getElementById(
+                        'remaining'
+                    ).innerText =
+                        '₹' + data.remaining;
+                });
+        }
+
+        /* CATEGORY ANALYTICS */
+
+        function loadCategoryAnalytics() {
+
+            fetch(
+                `/api/v1/analytics/categories/${localStorage.getItem("user_id")
+                }`
+            )
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    let html = '';
+
+                    data.forEach(item => {
+
+                        html += `
+
+            <div class="progress-card">
+
+                <div class="progress-top">
+
+                    <h3>${item.category}</h3>
+
+                    <span>
+                        ${item.usage.toFixed(2)}%
+                    </span>
+
+                </div>
+
+                <p>
+
+                    ₹${item.total_spent}
+                    /
+                    ₹${item.total_budget}
+
+                </p>
+
+                <div class="progress-bar">
+
+                    <div
+                        class="progress-fill"
+
+                        style="
+                            width:${item.usage}%
+                        ">
+                    </div>
+
+                </div>
+
+                <div class="analytics-info">
+
+                    <p>
+                        Remaining:
+                        ₹${item.remaining}
+                    </p>
+
+                </div>
+
+            </div>
+            `;
+                    });
+
+                    document.getElementById(
+                        'progressContainer'
+                    ).innerHTML = html;
+                });
+        }
+
+        /* LOAD CATEGORIES */
+
+        function loadCategories() {
+
+            fetch(
+                `/api/v1/categories?user_id=${
+                    localStorage.getItem("user_id")
+                }`
+            )
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    let expense =
+                        document.getElementById(
+                            'category_id'
+                        );
+
+                    let budget =
+                        document.getElementById(
+                            'budget_category_id'
+                        );
+
+                    expense.innerHTML = '';
+                    budget.innerHTML = '';
+
+                    expense.innerHTML += `
+            <option value="">
+                Select Category
+            </option>
+        `;
+
+                    budget.innerHTML += `
+            <option value="">
+                Select Category
+            </option>
+        `;
+
+                    data.forEach(category => {
+
+                        expense.innerHTML += `
+
+                <option
+                    value="${category.category_id}">
+
+                    ${category.name}
+
+                </option>
+            `;
+
+                        budget.innerHTML += `
+
+                <option
+                    value="${category.category_id}">
+
+                    ${category.name}
+
+                </option>
+            `;
+                    });
+                });
+        }
+
+        /* CREATE BUDGET */
+
+        function createBudget() {
+
+            if (!document.getElementById(
+                'b_amount'
+            ).value) {
+
+                alert("Enter budget amount");
+
+                return;
+            }
+
+            fetch('/api/v1/budgets', {
+
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+
+                    user_id:
+                        localStorage.getItem(
+                            "user_id"
+                        ),
+
+                    category_id:
+                        document.getElementById(
+                            'budget_category_id'
+                        ).value,
+
+                    amount:
+                        document.getElementById(
+                            'b_amount'
+                        ).value,
+
+                    start_date:
+                        document.getElementById(
+                            'start_date'
+                        ).value,
+
+                    end_date:
+                        document.getElementById(
+                            'end_date'
+                        ).value
+                })
+            })
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    alert("Budget Created");
+
+                    loadDashboard();
+
+                    loadCategoryAnalytics();
+                });
+        }
+
+        /* ADD EXPENSE */
+
+        function addExpense() {
+
+            if (!document.getElementById(
+                'amount'
+            ).value) {
+
+                alert("Enter amount");
+
+                return;
+            }
+
+            fetch('/api/v1/expenses', {
+
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+
+                    user_id:
+                        localStorage.getItem(
+                            "user_id"
+                        ),
+
+                    category_id:
+                        document.getElementById(
+                            'category_id'
+                        ).value,
+
+                    amount:
+                        document.getElementById(
+                            'amount'
+                        ).value,
+
+                    description:
+                        document.getElementById(
+                            'description'
+                        ).value,
+
+                    expense_date:
+                        document.getElementById(
+                            'expense_date'
+                        ).value
+                })
+            })
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    document.getElementById(
+                        'expenseResult'
+                    ).innerHTML = `
+
+            <p>
+
+                <b>Total Spent:</b>
+
+                ₹${data.total_spent}
+
+            </p>
+
+            <p>
+
+                <b>Usage:</b>
+
+                ${data.usage.toFixed(2)}%
+
+            </p>
+
+            <p>
+
+                <b>Remaining:</b>
+
+                ₹${data.remaining}
+
+            </p>
+
+            <p>
+
+                <b>Alert:</b>
+
+                ${data.alert || 'No Alert'}
+
+            </p>
+        `;
+
+                    loadDashboard();
+
+                    loadCategoryAnalytics();
+
+                    loadExpenses();
+
+                    loadAlerts();
+                });
+        }
+
+        /* LOAD EXPENSES */
+
+        function loadExpenses() {
+
+            fetch('/api/v1/expenses')
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    let html = '';
+
+                    data.forEach(expense => {
+
+                        html += `
+
+            <tr>
+
+                <td>
+                    ${expense.category}
+                </td>
+                <td>
+                    ${expense.expense_date}
+                </td>
+
+                <td>
+                    ${expense.description}
+                </td>
+
+                <td>
+                    ₹${expense.amount}
+                </td>
+
+                <td>
+
+                    <button
+                        class="edit-btn"
+                        onclick="
+                            editExpense(
+                                ${expense.expense_id}
+                            )
+                        ">
+
+                        Edit
+
+                    </button>
+
+                    <button
+                        class="delete-btn"
+                        onclick="
+                            deleteExpense(
+                                ${expense.expense_id}
+                            )
+                        ">
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            </tr>
+            `;
+                    });
+
+                    document.getElementById(
+                        'expenseTable'
+                    ).innerHTML = html;
+                });
+        }
+
+        /* DELETE EXPENSE */
+
+        function deleteExpense(id) {
+
+            if (!confirm(
+                "Delete this expense?"
+            )) {
+                return;
+            }
+
+            fetch(`/api/v1/expenses/${id}`, {
+
+                method: 'DELETE'
+            })
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    alert(data.message);
+
+                    loadExpenses();
+
+                    loadDashboard();
+
+                    loadCategoryAnalytics();
+                });
+        }
+
+        /* EDIT EXPENSE */
+
+        function editExpense(id) {
+
+            let amount = prompt(
+                "Enter new amount"
+            );
+
+            let description = prompt(
+                "Enter new description"
+            );
+
+            fetch(`/api/v1/expenses/${id}`, {
+
+                method: 'PUT',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+
+                    amount: amount,
+
+                    description: description
+                })
+            })
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    alert(data.message);
+
+                    loadExpenses();
+
+                    loadDashboard();
+
+                    loadCategoryAnalytics();
+                });
+        }
+
+        /* ALERTS */
+
+        function loadAlerts() {
+
+            fetch('/api/v1/alerts/logs')
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    let html = '';
+
+                    data.forEach(alert => {
+
+                        html += `
+
+                        <div class="alert-card">
+
+                            <h3 class="severity ${alert.severity}">
+    ${alert.severity.toUpperCase()}
+</h3>
+
+                            <p>
+
+                                ${alert.message}
+
+                            </p>
+
+                            <small>
+
+                                ${alert.time}
+
+                            </small>
+
+                        </div>
+                        `;
+                    });
+
+                    document.getElementById(
+                        'alertsContainer'
+                    ).innerHTML = html;
+                });
+        }
+
+        /* AUTO LOGIN */
+
+        if (localStorage.getItem("user_id")) {
+
+            startApp();
+        }
+
+    </script>
+
+</body>
+
+</html>
